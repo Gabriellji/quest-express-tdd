@@ -1,7 +1,9 @@
 const request = require('supertest');
 const app = require('../app');
+const connection = require('../connection');
 
 describe('Test routes', () => {
+    beforeEach(done => connection.query('TRUNCATE bookmark', done));
     it('GET / sends "Hello World" as json', (done) => {
         request(app)
             .get('/')
@@ -33,7 +35,7 @@ describe('Test routes', () => {
           .expect(201)
           .expect('Content-Type', /json/)
           .then(response => {
-            const expected = { id: 1, url: 'https://jestjs.io', title: 'Jest' };
+            const expected = { id: expect.any(Number), url: 'https://jestjs.io', title: 'Jest' };
             expect(response.body).toEqual(expected);
             done();
           })
