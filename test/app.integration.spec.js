@@ -42,3 +42,37 @@ describe('Test routes', () => {
           .catch(done);
       });
 });
+
+describe('GET /bookmarks/:id', () => {
+    const testBookmark = { url: 'https://nodejs.org/', title: 'Node.js' };
+    beforeEach((done) => connection.query(
+      'TRUNCATE bookmark', () => connection.query(
+        'INSERT INTO bookmark SET ?', testBookmark, done
+      )
+    ));
+  
+    it('GET /bookmarks/:id - error: "Bookmark not found"', (done) => {
+        request(app)
+            .get('/bookmarks/:id')
+            .expect(404)
+            .expect('Content-Type', /json/)
+            .then(response => {
+                const expected = { error: 'Bookmark not found' };
+                expect(response.body).toEqual(expected);
+                done();
+            });
+    })
+
+    it('GET /bookmarks/:id - "Bookmark has found"', (done) => {
+        request(app)
+            .get('/bookmarks/1')
+            .expect(200)
+            .send()
+            .expect('Content-Type', /json/)
+            .then(response => {
+                const expected = { id: expect.any(Number), ...testBookmark };
+                expect(response.body).toEqual(expected);
+                done();
+            });
+    })
+  });
